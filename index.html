@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login with Captcha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        #captcha {
+            margin-bottom: 10px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            display: block;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm" onsubmit="return validateCaptcha()">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <canvas id="captcha" width="200" height="100"></canvas>
+                <button type="button" onclick="generateCaptcha()">Refresh Captcha</button>
+            </div>
+            <div class="form-group">
+                <label for="captchaInput">Enter Captcha</label>
+                <input type="text" id="captchaInput" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <script>
+        let captchaText = '';
+
+        function randomText(length = 6) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let text = '';
+            for (let i = 0; i < length; i++) {
+                text += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return text;
+        }
+
+        function generateCaptcha() {
+            const canvas = document.getElementById('captcha');
+            const ctx = canvas.getContext('2d');
+            captchaText = randomText();
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Fill background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw text
+            ctx.font = '36px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(captchaText, canvas.width / 2, canvas.height / 2);
+
+            // Add noise
+            for (let i = 0; i < 150; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
+                ctx.fillStyle = 'black';
+                ctx.fill();
+            }
+        }
+
+        function validateCaptcha() {
+            const userInput = document.getElementById('captchaInput').value;
+            if (userInput === captchaText) {
+                alert('Captcha validated successfully!');
+                return true;
+            } else {
+                alert('Captcha validation failed. Please try again.');
+                generateCaptcha();
+                return false;
+            }
+        }
+
+        // Generate initial Captcha
+        window.onload = generateCaptcha;
+    </script>
+</body>
+</html>
